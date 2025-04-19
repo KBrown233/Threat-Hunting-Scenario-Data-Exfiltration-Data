@@ -161,7 +161,7 @@ Details: curl.exe initiated outbound HTTP connections to the URLs mentioned abov
 
 ---
 
-## Summary-Unauthorized Data Exfiltration via Rogue Account
+## Summary
 
 On April 18, 2025, suspicious activity was detected on a Windows 10 endpoint (windows-mde-kb) involving an unauthorized user account named baduser. Over the course of two hours, this rogue account successfully logged in multiple times, accessed sensitive files—including Personally Identifiable Information (PII) and financial data—and attempted to exfiltrate that data using curl.exe.
 
