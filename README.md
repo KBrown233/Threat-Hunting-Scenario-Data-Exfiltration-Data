@@ -2,8 +2,8 @@
 ![image](https://github.com/user-attachments/assets/bb8cbb85-291f-47cd-a8c1-60cb788b7261)
 
 
-# Threat Hunt Report: Unauthorized TOR Usage
-- [Scenario Creation](https://github.com/KBrown233/Threat-Hunting-Scenario-TOR/blob/main/Threat-Hunting-Scenario-TOR-Event-Creation.md)
+# Threat Hunt Report: Data Exfiltration
+- [Scenario Creation](https://github.com/KBrown233/Threat-Hunting-Scenario-Data-Exfiltration-Data/blob/main/Data%20Exfiltration%20Scenario%20Creation)
 
 ## Platforms and Languages Leveraged
 - Windows 10 Virtual Machines (Microsoft Azure)
